@@ -1,0 +1,22 @@
+# Render Blueprint — deploy with one click from a Git repo.
+# Docs: https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: jatayu-threat-intel
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    # 1 worker so the background scheduler + in-memory cache are shared (not duplicated).
+    # 8 threads to serve concurrent requests; 120s timeout covers 30-60s attack-surface scans.
+    startCommand: gunicorn app:app --workers 1 --threads 8 --timeout 120 --bind 0.0.0.0:$PORT
+    healthCheckPath: /api/status
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.8"
+      # Optional API keys — enrich scans/threat-intel when set. Leave unset to skip.
+      - key: OTX_API_KEY
+        sync: false
+      - key: VT_API_KEY
+        sync: false
+      - key: ABUSEIPDB_KEY
+        sync: false

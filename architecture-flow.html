@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>JATAYU — Architecture Flowchart</title>
+<style>
+  :root{
+    --bg:#060c1c; --surface:#0b1730; --border:#1c3157;
+    --txt:#e7eefb; --txt2:#9fb4d6; --txt3:#5e739a;
+    --cyan:#22d3ee; --blue:#1a9fff; --violet:#8a7dff; --green:#00e5a8; --orange:#ff8833;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:radial-gradient(1100px 500px at 50% -8%,rgba(26,159,255,.10),transparent),var(--bg);
+    color:var(--txt);font-family:'Segoe UI',Roboto,Arial,sans-serif;padding:34px 18px 70px}
+  .wrap{max-width:1080px;margin:0 auto}
+  h1{font-size:26px;font-weight:800;background:linear-gradient(90deg,var(--cyan),var(--blue));
+    -webkit-background-clip:text;background-clip:text;color:transparent;letter-spacing:.5px}
+  .sub{color:var(--txt2);font-size:13.5px;margin:6px 0 26px}
+  code{font-family:'JetBrains Mono',Consolas,monospace;color:var(--cyan);font-size:12px}
+
+  .stage{display:flex;align-items:stretch;gap:14px;margin:0 auto}
+  .label{flex:0 0 120px;display:flex;align-items:center;justify-content:flex-end;
+    font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--txt3);text-align:right;padding-right:4px}
+  .nodes{flex:1;display:flex;flex-wrap:wrap;gap:10px}
+  .node{flex:1;min-width:150px;background:var(--surface);border:1px solid var(--border);
+    border-radius:10px;padding:12px 14px}
+  .node b{display:block;font-size:13px;color:var(--txt);margin-bottom:3px}
+  .node span{font-size:11.5px;color:var(--txt3);line-height:1.45;display:block}
+  .node code{display:block;margin-top:5px}
+
+  .b-cyan{border-left:4px solid var(--cyan)}
+  .b-green{border-left:4px solid var(--green)}
+  .b-violet{border-left:4px solid var(--violet)}
+  .b-blue{border-left:4px solid var(--blue)}
+  .b-orange{border-left:4px solid var(--orange)}
+
+  .down{display:flex;justify-content:center;margin:7px 0}
+  .down svg{width:26px;height:30px}
+  .down svg path{stroke:var(--blue);stroke-width:2;fill:none}
+  .down svg polygon{fill:var(--blue)}
+
+  .legend{margin-top:30px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 18px}
+  .legend h3{font-size:12px;color:var(--cyan);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+  .legend p{font-size:12.5px;color:var(--txt2);margin:4px 0}
+  .note{font-size:11.5px;color:var(--txt3);margin-top:18px;text-align:center}
+  @media(max-width:760px){.stage{flex-direction:column}.label{justify-content:flex-start;text-align:left;flex-basis:auto}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>JATAYU — Threat Intelligence Platform</h1>
+  <div class="sub">Architecture flowchart · data flows top → bottom · Flask backend + vanilla Chart.js SPA</div>
+
+  <!-- 1 SOURCES -->
+  <div class="stage">
+    <div class="label">&#9312; External<br/>Sources</div>
+    <div class="nodes">
+      <div class="node b-cyan"><b>Threat feeds</b><span>CISA KEV · NVD · Feodo · URLhaus · MalwareBazaar · HIBP · zero-day.cz · RSS</span></div>
+      <div class="node b-cyan"><b>Enrichment APIs</b><span>Shodan CVEDB (EPSS, CVSS v2&ndash;v4) · CIRCL · MITRE ATT&amp;CK · CAPEC</span></div>
+      <div class="node b-cyan"><b>Connectors / AI</b><span>Tenable.io · Qualys · Anthropic Claude</span></div>
+    </div>
+  </div>
+
+  <div class="down"><svg viewBox="0 0 26 30"><path d="M13 0 V20"/><polygon points="6,18 20,18 13,29"/></svg></div>
+
+  <!-- 2 FETCH / ENRICH -->
+  <div class="stage">
+    <div class="label">&#9313; Fetch &amp;<br/>Enrich<br/>(every 4h)</div>
+    <div class="nodes">
+      <div class="node b-green"><b>fetcher.py</b><span>refresh_all() pulls + normalizes all feeds; CWE&rarr;CAPEC&rarr;ATT&amp;CK chain<code>APScheduler · snapshot</code></span></div>
+      <div class="node b-green"><b>enrich.py</b><span>Per-CVE EPSS, CVSS v4, KEV, ransomware, attack vector · disk-cached</span></div>
+      <div class="node b-green"><b>advisory.py</b><span>Live vendor-advisory fetch + remediation text extraction</span></div>
+    </div>
+  </div>
+
+  <div class="down"><svg viewBox="0 0 26 30"><path d="M13 0 V20"/><polygon points="6,18 20,18 13,29"/></svg></div>
+
+  <!-- 3 ENGINES -->
+  <div class="stage">
+    <div class="label">&#9314; Core<br/>Engines</div>
+    <div class="nodes">
+      <div class="node b-violet"><b>risk.py</b><span>prioritize() EPSS-weighted score · build_remediation()</span></div>
+      <div class="node b-violet"><b>connectors.py</b><span>Ingest findings · dedup · stats</span></div>
+      <div class="node b-violet"><b>scanner.py / asm.py</b><span>Attack-surface scan · VM/ASM assessment</span></div>
+      <div class="node b-violet"><b>report.py</b><span>XLSX / PDF builders</span></div>
+    </div>
+  </div>
+
+  <div class="down"><svg viewBox="0 0 26 30"><path d="M13 0 V20"/><polygon points="6,18 20,18 13,29"/></svg></div>
+
+  <!-- 4 API -->
+  <div class="stage">
+    <div class="label">&#9315; API Layer<br/>(Flask)</div>
+    <div class="nodes">
+      <div class="node b-blue"><b>app.py — REST endpoints</b>
+        <span>/api/data · /api/status · /api/trends · /api/risk/prioritized</span>
+        <span>/api/remediation · /advisory · /ai · /api/scan · /api/scan/history</span>
+        <span>/api/connectors/* · /api/section/export/&lt;s&gt;/&lt;fmt&gt; · /api/report/custom</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="down"><svg viewBox="0 0 26 30"><path d="M13 0 V20"/><polygon points="6,18 20,18 13,29"/></svg></div>
+
+  <!-- 5 UI -->
+  <div class="stage">
+    <div class="label">&#9316; Presentation<br/>(SPA)</div>
+    <div class="nodes">
+      <div class="node b-orange"><b>templates/index.html</b><span>Overview · Scanner · CVEs · IOCs · Actors · Analytics · Connectors · Risk</span><code>Chart.js + chartjs-chart-geo (vendored)</code></div>
+      <div class="node b-orange"><b>Per-section chrome</b><span>Back button · Export (XLSX/PDF) · Scan history · Custom Report Builder</span></div>
+    </div>
+  </div>
+
+  <!-- BUILD WORKFLOW -->
+  <div class="legend">
+    <h3>How it was built — agent workflow</h3>
+    <p>&#128269; <b>Explore agents</b> map code &rarr; &#129517; <b>Plan agent</b> designs approach &rarr; &#128296; <b>Implement</b> targeted edits &rarr; &#9989; <b>Verify agents</b> (<code>selftest.py</code> offline checks + <code>verify_ui.py</code> headless Playwright render checks).</p>
+  </div>
+
+  <div class="legend" style="margin-top:14px">
+    <h3>Risk score (risk.py)</h3>
+    <p>score = min(100, base[CVSS&times;3.5 &le;35] + KEV[+28] + ransomware[+13] + network[+7] + exposure[&le;10] + EPSS[&times;15]) &rarr; CRITICAL &ge;75 · HIGH &ge;50 · MEDIUM &ge;30 · LOW &lt;30</p>
+  </div>
+
+  <p class="note">Data refreshes every 4 hours (or serves a bundled snapshot on serverless); feeds degrade gracefully; chart libraries are vendored locally.</p>
+</div>
+</body>
+</html>

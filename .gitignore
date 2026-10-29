@@ -1,0 +1,15 @@
+.vercel
+__pycache__/
+*.pyc
+cache/
+history/
+ingested/
+connectors_config.json
+server_*.log
+_videobuild/
+_deckbuild/
+*.xlsx
+*.pdf
+.env
+.venv/
+venv/

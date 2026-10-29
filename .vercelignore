@@ -1,0 +1,13 @@
+.agents/
+.claude/
+cache/
+history/
+__pycache__/
+*.pyc
+run_screenshots.py
+static/ss_*.png
+*.xlsx
+*.pdf
+DEPLOY.md
+intel.md
+UIUX.md
